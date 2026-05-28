@@ -18,6 +18,7 @@
     --dz-shadow: rgba(0, 132, 61, 0.12);
     --dz-radius: 8px;
     --dz-transition: 0.2s ease;
+    --dz-touch-min: 44px;
 }
 
 /* ── Typography ── */
@@ -26,6 +27,21 @@ body {
     background: var(--dz-bg-light);
     color: var(--dz-text);
     min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Touch-friendly buttons ── */
+.btn {
+    min-height: var(--dz-touch-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-sm {
+    min-height: 36px;
+}
+a, button, .doc-card, .oo-card {
+    cursor: pointer;
 }
 
 /* ── Navbar ── */
@@ -331,5 +347,25 @@ body {
     .doc-card .card-icon {
         height: 100px;
         font-size: 2rem;
+    }
+}
+
+/* ── Mobile global ── */
+@media (max-width: 576px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .doc-category-badge {
+        font-size: 0.55rem;
+        padding: 1px 6px;
+    }
+}
+
+/* ── Tablet ── */
+@media (min-width: 577px) and (max-width: 991px) {
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 }

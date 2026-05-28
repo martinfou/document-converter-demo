@@ -23,7 +23,7 @@
 
   <style>
     .oo-hero {
-      background: linear-gradient(135deg, var(--dz-primary) 0%, #006b30 100%);
+      background: linear-gradient(135deg, var(--dz-green) 0%, #006b30 100%);
       color: #fff;
       border-radius: 12px;
       padding: 2rem;
@@ -32,6 +32,13 @@
     .oo-hero h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .oo-hero p { opacity: 0.9; font-size: 0.9rem; margin-bottom: 0; }
     .oo-hero .badge { background: rgba(255,255,255,0.2); font-size: 0.8rem; }
+    @media (max-width: 576px) {
+      .oo-hero { padding: 1.25rem; border-radius: 8px; }
+      .oo-hero h2 { font-size: 1.15rem; }
+      .oo-hero p { font-size: 0.8rem; }
+      .oo-hero .d-flex { flex-direction: column; text-align: center; }
+      .oo-hero .badge { font-size: 0.7rem; }
+    }
   </style>
 </head>
 <body class="d-flex flex-column">

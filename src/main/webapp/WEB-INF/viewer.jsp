@@ -46,11 +46,20 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
     }
     .doc-info-bar .doc-meta {
       font-size: 0.8rem;
       color: var(--dz-text-light);
       white-space: nowrap;
+      flex-shrink: 0;
+    }
+    @media (max-width: 576px) {
+      .doc-info-bar { padding: 6px 10px; gap: 6px; flex-wrap: wrap; }
+      .doc-info-bar .doc-name { font-size: 0.85rem; width: 100%; flex: none; order: 3; white-space: normal; }
+      .doc-info-bar .vr { display: none; }
+      .doc-info-bar .d-none.d-sm-inline { display: none !important; }
     }
   </style>
 </head>

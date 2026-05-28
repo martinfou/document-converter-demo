@@ -101,8 +101,30 @@
 
     @media (max-width: 768px) {
       .split-layout { flex-direction: column; }
-      .split-preview { min-height: 40vh; border-right: none; border-bottom: 1px solid var(--dz-border); }
+      .split-preview { min-height: 30vh; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--dz-border); }
       .split-controls { width: 100%; }
+      .preview-body { padding: 8px; }
+      #progressSteps .step-label { font-size: 0.7rem; }
+      .split-controls .controls-body { padding: 12px; }
+    }
+    @media (max-width: 480px) {
+      .split-preview { min-height: 25vh; max-height: 40vh; }
+      .split-controls .controls-header { padding: 10px 12px; }
+      .split-controls .controls-body { padding: 10px; }
+    }
+    /* Toggle preview on mobile */
+    .preview-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--dz-text-light);
+      font-size: 0.8rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .preview-toggle:hover { background: var(--dz-green-light); color: var(--dz-green); }
+    @media (max-width: 768px) {
+      .preview-toggle { display: inline-flex; align-items: center; gap: 4px; }
     }
   </style>
 </head>
@@ -118,6 +140,10 @@
         <a href="${pageContext.request.contextPath}/" class="btn btn-sm btn-dz-outline" title="Retour">
           <i class="bi bi-arrow-left"></i>
         </a>
+        <button class="preview-toggle" id="previewToggle" type="button" title="Afficher/masquer">
+          <i class="bi bi-eye-slash"></i>
+          <span class="d-none d-sm-inline">Aperçu</span>
+        </button>
         <i class="bi bi-file-earmark me-1"></i>
         <strong class="text-truncate">${doc.name}</strong>
         <span class="badge bg-dz ms-auto">${fn:toUpperCase(doc.fileType)}</span>
@@ -478,6 +504,28 @@
     var style = document.createElement('style');
     style.textContent = '.spinner-dz-sm { display: inline-block; }';
     document.head.appendChild(style);
+
+    // Preview toggle on mobile
+    var previewToggle = document.getElementById('previewToggle');
+    var splitPreview = document.querySelector('.split-preview');
+    if (previewToggle && splitPreview) {
+      var previewVisible = true;
+      previewToggle.addEventListener('click', function() {
+        previewVisible = !previewVisible;
+        splitPreview.style.display = previewVisible ? '' : 'none';
+        previewToggle.innerHTML = previewVisible
+          ? '<i class="bi bi-eye-slash"></i><span class="d-none d-sm-inline"> Aperçu</span>'
+          : '<i class="bi bi-eye"></i><span class="d-none d-sm-inline"> Aperçu</span>';
+      });
+      // Reset on resize above breakpoint
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && !previewVisible) {
+          previewVisible = true;
+          splitPreview.style.display = '';
+          previewToggle.innerHTML = '<i class="bi bi-eye-slash"></i><span class="d-none d-sm-inline"> Aperçu</span>';
+        }
+      });
+    }
 
   })();
   </script>
