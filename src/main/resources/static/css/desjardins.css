@@ -1,0 +1,335 @@
+/* ═══════════════════════════════════════════════════════════
+ * Document Viewer — Couleurs Desjardins
+ * Palais officielle : #00843D (vert Desjardins)
+ * ═══════════════════════════════════════════════════════════ */
+
+:root {
+    --dz-green: #00843D;
+    --dz-green-dark: #006b30;
+    --dz-green-darker: #004d22;
+    --dz-green-light: #e8f5e9;
+    --dz-green-lighter: #f0f9f0;
+    --dz-accent: #00a86b;
+    --dz-text: #1a1a1a;
+    --dz-text-light: #6c757d;
+    --dz-bg: #ffffff;
+    --dz-bg-light: #f5faf5;
+    --dz-border: #dee2e6;
+    --dz-shadow: rgba(0, 132, 61, 0.12);
+    --dz-radius: 8px;
+    --dz-transition: 0.2s ease;
+}
+
+/* ── Typography ── */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--dz-bg-light);
+    color: var(--dz-text);
+    min-height: 100vh;
+}
+
+/* ── Navbar ── */
+.navbar-dz {
+    background: var(--dz-bg) !important;
+    border-bottom: 3px solid var(--dz-green);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.navbar-dz .navbar-brand {
+    font-weight: 700;
+    color: var(--dz-green);
+    letter-spacing: -0.3px;
+}
+
+.navbar-dz .navbar-brand-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--dz-green), var(--dz-green-dark));
+    color: #fff;
+    border-radius: 6px;
+    font-size: 1.1rem;
+}
+
+/* ── Stats bar ── */
+.stats-bar {
+    background: var(--dz-bg);
+    border-bottom: 1px solid var(--dz-border);
+    padding: 8px 0;
+}
+
+/* ── Document cards ── */
+.doc-card {
+    border: 1px solid var(--dz-border);
+    border-radius: var(--dz-radius);
+    transition: transform var(--dz-transition), box-shadow var(--dz-transition);
+    cursor: pointer;
+    height: 100%;
+    background: var(--dz-bg);
+    overflow: hidden;
+}
+
+.doc-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px var(--dz-shadow);
+    border-color: var(--dz-green);
+}
+
+.doc-card .card-icon {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--dz-green-light), var(--dz-bg));
+    font-size: 3rem;
+    color: var(--dz-green);
+}
+
+.doc-card .card-icon-pdf { color: #dc3545; }
+.doc-card .card-icon-docx { color: #1a73e8; }
+.doc-card .card-icon-xlsx { color: var(--dz-green); }
+.doc-card .card-icon-pptx { color: #e37400; }
+.doc-card .card-icon-img { color: #9c27b0; }
+.doc-card .card-icon-tiff { color: #607d8b; }
+.doc-card .card-icon-email { color: #e91e63; }
+
+/* ONLYOFFICE compatibility badge */
+.doc-badge-oo {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0, 132, 61, 0.9);
+    color: #fff;
+}
+
+/* ONLYOFFICE cards on /onlyoffice page */
+.oo-card {
+    transition: transform var(--dz-transition), box-shadow var(--dz-transition);
+    cursor: pointer;
+}
+.oo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--dz-shadow) !important;
+    border-color: var(--dz-green) !important;
+}
+.oo-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    color: #fff;
+    flex-shrink: 0;
+}
+.oo-icon.card-icon-pdf { background: #dc3545; }
+.oo-icon.card-icon-docx { background: #1a73e8; }
+.oo-icon.card-icon-xlsx { background: var(--dz-green); }
+.oo-icon.card-icon-pptx { background: #e37400; }
+
+/* Navbar nav links */
+.navbar-dz .nav-link {
+    color: var(--dz-text-light);
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all var(--dz-transition);
+}
+.navbar-dz .nav-link:hover,
+.navbar-dz .nav-link.active {
+    color: var(--dz-green);
+    background: var(--dz-green-light);
+}
+
+.doc-card .card-body {
+    padding: 1rem;
+}
+
+.doc-card .card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.doc-card .card-text {
+    font-size: 0.8rem;
+    color: var(--dz-text-light);
+    line-height: 1.4;
+}
+
+.doc-card .card-footer {
+    background: transparent;
+    border-top: 1px solid rgba(0,0,0,0.04);
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+    color: var(--dz-text-light);
+}
+
+/* ── Category badges ── */
+.doc-category-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0, 132, 61, 0.1);
+    color: var(--dz-green);
+    font-weight: 600;
+}
+
+/* ── File type icons ── */
+.file-type-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.file-type-icon.docx { background: #1a73e8; }
+.file-type-icon.xlsx { background: var(--dz-green); }
+.file-type-icon.pptx { background: #e37400; }
+.file-type-icon.pdf  { background: #dc3545; }
+
+/* ── Buttons ── */
+.btn-dz {
+    color: #fff;
+    background: var(--dz-green);
+    border: 1px solid var(--dz-green);
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--dz-transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-dz:hover {
+    color: #fff;
+    background: var(--dz-green-dark);
+    border-color: var(--dz-green-dark);
+}
+
+.btn-dz-outline {
+    color: var(--dz-green);
+    background: transparent;
+    border: 1px solid var(--dz-green);
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--dz-transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-dz-outline:hover {
+    color: #fff;
+    background: var(--dz-green);
+}
+
+/* ── Tags / pills ── */
+.pill-dz {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--dz-green-light);
+    color: var(--dz-green);
+}
+
+/* ── Viewer page ── */
+.viewer-toolbar {
+    background: var(--dz-bg);
+    border-bottom: 2px solid var(--dz-green);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.viewer-frame {
+    width: 100%;
+    height: calc(100vh - 120px);
+    border: none;
+    background: var(--dz-bg);
+}
+
+/* ── Loading spinner ── */
+.spinner-dz {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--dz-border);
+    border-top-color: var(--dz-green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Empty state ── */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--dz-text-light);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    opacity: 0.25;
+}
+
+/* ── Utility classes ── */
+.bg-dz { background: var(--dz-green) !important; }
+.bg-dz-light { background: var(--dz-green-light) !important; }
+.text-dz { color: var(--dz-green) !important; }
+.border-dz { border-color: var(--dz-green) !important; }
+
+/* ── Selection ── */
+::selection {
+    background: var(--dz-green);
+    color: #fff;
+}
+
+/* ── Footer ── */
+.footer-dz {
+    border-top: 1px solid var(--dz-border);
+    background: var(--dz-bg);
+    padding: 12px 0;
+    font-size: 0.8rem;
+    color: var(--dz-text-light);
+}
+
+/* ── Responsive grid ── */
+@media (max-width: 576px) {
+    .doc-card .card-icon {
+        height: 100px;
+        font-size: 2rem;
+    }
+}

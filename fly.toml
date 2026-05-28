@@ -1,0 +1,30 @@
+# fly.toml — Déploiement Fly.io
+# Application : Document Converter Demo
+# Showcase of pure Java document converters + ONLYOFFICE integration
+
+app = "document-converter-demo"
+primary_region = "yyz"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  SERVER_PORT = "8080"
+  SERVER_URL = "https://document-converter-demo.fly.dev"
+  # ONLYOFFICE Document Server — déployé sur Fly.io
+  ONLYOFFICE_DS_URL = "https://ods-document-server.fly.dev"
+  ONLYOFFICE_DOCSERVICE_URL = "https://ods-document-server.fly.dev"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_start_machines = true
+  auto_stop_machines = false
+  min_machines_running = 1
+  max_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

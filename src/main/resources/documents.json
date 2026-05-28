@@ -1,0 +1,123 @@
+[
+  {
+    "id": "docx4j-docx",
+    "name": "DOCX → docx4j",
+    "description": "Conversion DOCX → PDF avec docx4j (meilleure fidelite Java pure)",
+    "fileType": "docx",
+    "filePath": "samples/sample-docx4j.docx",
+    "library": "docx4j 11.5",
+    "category": "Word Processing",
+    "size": "2.5 KB",
+    "ooCompatible": true
+  },
+  {
+    "id": "poi-docx",
+    "name": "DOCX → POI (texte)",
+    "description": "Conversion DOCX → PDF avec Apache POI (extraction texte uniquement)",
+    "fileType": "docx",
+    "filePath": "samples/guide-integration.docx",
+    "library": "Apache POI 5.4",
+    "category": "Word Processing",
+    "size": "37 KB",
+    "ooCompatible": true
+  },
+  {
+    "id": "poi-xlsx",
+    "name": "XLSX → POI",
+    "description": "Conversion XLSX (Excel 2007+) → PDF avec Apache POI XSSF",
+    "fileType": "xlsx",
+    "filePath": "samples/budget-2026.xlsx",
+    "library": "Apache POI 5.4",
+    "category": "Spreadsheet",
+    "size": "5.2 KB",
+    "ooCompatible": true
+  },
+  {
+    "id": "poi-pptx",
+    "name": "PPTX → POI",
+    "description": "Conversion PPTX (PowerPoint 2007+) → PDF avec Apache POI XSLF",
+    "fileType": "pptx",
+    "filePath": "samples/presentation-ca.pptx",
+    "library": "Apache POI 5.4",
+    "category": "Presentation",
+    "size": "29 KB",
+    "ooCompatible": true
+  },
+  {
+    "id": "pdfbox-tiff",
+    "name": "TIFF → PDFBox",
+    "description": "Conversion TIFF multi-page → PDF avec Apache PDFBox",
+    "fileType": "tiff",
+    "filePath": "samples/sample-jpeg.jpg",
+    "library": "Apache PDFBox 3.0",
+    "category": "Image/Scan",
+    "size": "demo",
+    "ooCompatible": false
+  },
+  {
+    "id": "imaging-jpeg",
+    "name": "JPEG → Commons Imaging",
+    "description": "Conversion JPEG → PDF avec Apache Commons Imaging + PDFBox",
+    "fileType": "jpg",
+    "filePath": "samples/sample-jpeg.jpg",
+    "library": "Apache Commons Imaging",
+    "category": "Image",
+    "size": "8.4 KB",
+    "ooCompatible": false
+  },
+  {
+    "id": "imaging-png",
+    "name": "PNG → Commons Imaging",
+    "description": "Conversion PNG → PDF avec Apache Commons Imaging + PDFBox",
+    "fileType": "png",
+    "filePath": "samples/sample-png.png",
+    "library": "Apache Commons Imaging",
+    "category": "Image",
+    "size": "4.4 KB",
+    "ooCompatible": false
+  },
+  {
+    "id": "imaging-gif",
+    "name": "GIF → Commons Imaging",
+    "description": "Conversion GIF → PDF avec Apache Commons Imaging + PDFBox",
+    "fileType": "gif",
+    "filePath": "samples/sample-gif.gif",
+    "library": "Apache Commons Imaging",
+    "category": "Image",
+    "size": "2.3 KB",
+    "ooCompatible": false
+  },
+  {
+    "id": "imaging-bmp",
+    "name": "BMP → Commons Imaging",
+    "description": "Conversion BMP → PDF avec Apache Commons Imaging + PDFBox",
+    "fileType": "bmp",
+    "filePath": "samples/sample-bmp.bmp",
+    "library": "Apache Commons Imaging",
+    "category": "Image",
+    "size": "360 KB",
+    "ooCompatible": false
+  },
+  {
+    "id": "tika-eml",
+    "name": "EML → Tika",
+    "description": "Conversion d'email EML → PDF avec Apache Tika",
+    "fileType": "eml",
+    "filePath": "samples/sample-email.eml",
+    "library": "Apache Tika 3.1",
+    "category": "Email",
+    "size": "590 B",
+    "ooCompatible": false
+  },
+  {
+    "id": "tika-mbox",
+    "name": "MBOX → Tika",
+    "description": "Conversion de boite mail MBOX → PDF avec Apache Tika",
+    "fileType": "mbox",
+    "filePath": "samples/sample-mbox.mbox",
+    "library": "Apache Tika 3.1",
+    "category": "Email",
+    "size": "443 B",
+    "ooCompatible": false
+  }
+]

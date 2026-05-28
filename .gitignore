@@ -1,0 +1,18 @@
+# Build output
+target/
+
+# BMAD Method
+_bmad-output/
+bmad-seed/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

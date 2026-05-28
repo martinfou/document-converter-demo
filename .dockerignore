@@ -1,0 +1,11 @@
+target/
+.idea/
+*.iml
+.git/
+build/
+node_modules/
+*.swp
+*.log
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  address: 0.0.0.0
+  # URL publique de l'application (pour les callbacks ONLYOFFICE)
+  url: http://localhost:8080
+
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/
+      suffix: .jsp
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+# Répertoire des fichiers samples (générés au démarrage)
+app:
+  samples:
+    dir: samples
+
+# ONLYOFFICE Document Server — déployé sur Fly.io
+onlyoffice:
+  ds:
+    url: https://ods-document-server.fly.dev
+  docservice:
+    url: https://ods-document-server.fly.dev

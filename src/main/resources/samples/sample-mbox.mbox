@@ -1,0 +1,19 @@
+From alice@example.com Tue Feb 10 10:00:00 2026
+From: alice@example.com
+To: bob@example.com
+Subject: Reunion de projet
+Date: Tue, 10 Feb 2026 10:00:00 -0500
+
+Bob,
+La reunion est confirmee pour 14h. Merci de preparer les slides.
+Alice
+
+From bob@example.com Tue Feb 10 10:30:00 2026
+From: bob@example.com
+To: alice@example.com
+Subject: Re: Reunion de projet
+Date: Tue, 10 Feb 2026 10:30:00 -0500
+
+Alice,
+Recu. Les slides sont presque prets.
+Bob
