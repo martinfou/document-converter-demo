@@ -32,9 +32,15 @@ services:
       - JWT_ENABLED=false
       # Limite mémoire si besoin — ODS peut être gourmand
       - NODE_ENV=production
+      # App Spring Boot sur l'hôte (host.docker.internal:8080)
+      - ALLOW_PRIVATE_IP_ADDRESS=true
+      - ALLOW_META_IP_ADDRESS=true
     volumes:
       - ods-data:/var/www/onlyoffice/Data
       - ods-log:/var/log/onlyoffice
+    # Permet à ODS (Docker) d'atteindre l'app Spring Boot sur la machine hôte (mvn spring-boot:run)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]

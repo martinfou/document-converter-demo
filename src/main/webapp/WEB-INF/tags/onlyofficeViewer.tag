@@ -14,32 +14,11 @@
 <!-- Un seul enfant flex : loader en overlay, conteneur en pleine hauteur -->
 <div id="oo-viewer-root">
   <div id="oo-container"></div>
-  <div id="oo-loader" class="d-flex flex-column align-items-center justify-content-center">
+  <div id="oo-loader">
     <div class="spinner-dz mb-3"></div>
     <p class="text-muted small">Ouverture du document dans ONLYOFFICE...</p>
   </div>
 </div>
-
-<style>
-  #oo-viewer-root {
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    width: 100%;
-  }
-  #oo-container {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  #oo-loader {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background: #f0f0f0;
-  }
-</style>
 
 <!-- ONLYOFFICE Document Editor API -->
 <script type="text/javascript" src="<%= dsUrlClean %>/web-apps/apps/api/documents/api.js"></script>
@@ -61,29 +40,38 @@
   var docEditor = null;
 
   function viewerHeight() {
-    var root = document.getElementById('oo-viewer-root');
-    return root ? root.clientHeight + 'px' : '100%';
+    var wrapper = document.querySelector('.viewer-wrapper');
+    return wrapper && wrapper.clientHeight > 0
+      ? wrapper.clientHeight + 'px'
+      : '100%';
   }
 
   config.width = '100%';
 
+  function hideLoader() {
+    var loader = document.getElementById('oo-loader');
+    if (loader) loader.classList.add('hidden');
+  }
+
   // Ajouter le callback d'initialisation
   config.events = {
     'onAppReady': function() {
-      var loader = document.getElementById('oo-loader');
-      if (loader) loader.style.display = 'none';
+      hideLoader();
       if (docEditor && typeof docEditor.resizeEditor === 'function') {
         docEditor.resizeEditor();
       }
     },
     'onDocumentReady': function() {
+      hideLoader();
       console.log('Document prêt dans ONLYOFFICE');
     },
     'onError': function(e) {
+      console.error('ONLYOFFICE error:', e);
       var loader = document.getElementById('oo-loader');
       if (loader) {
         loader.innerHTML = '<div class="alert alert-warning m-3">' +
           'Impossible de charger le document. Vérifiez que le serveur ONLYOFFICE est accessible.' +
+          (e && e.data ? ' (' + e.data + ')' : '') +
           '</div>';
       }
     }
@@ -106,8 +94,7 @@
           'Erreur lors de l\'initialisation de la visionneuse ONLYOFFICE : ' + e.message +
           '</div>';
       }
-      var loader = document.getElementById('oo-loader');
-      if (loader) loader.style.display = 'none';
+      hideLoader();
     }
   }
 

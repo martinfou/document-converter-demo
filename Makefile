@@ -15,7 +15,7 @@
 #   make push             →   Push sur GitHub
 # ═══════════════════════════════════════════════════════════════
 
-.PHONY: run run-app run-ods build stop logs deploy push
+.PHONY: run run-app run-app-oo run-ods build stop logs deploy push
 
 # ─── Full stack (app + ODS) via Docker Compose ──────────────
 run: build
@@ -27,6 +27,15 @@ run: build
 	@echo "═══════════════════════════════════════════"
 	@echo "  Première connexion ODS lente (téléchargement de l'image)"
 	@echo ""
+
+# ─── App + ODS local (Maven sur l'hôte, ODS en Docker) ───────
+run-app-oo: run-ods
+	@echo "Lancement Spring Boot pour ONLYOFFICE local..."
+	@echo "  SERVER_URL=http://host.docker.internal:8080"
+	SERVER_URL=http://host.docker.internal:8080 \
+	ONLYOFFICE_DS_URL=http://localhost:3080 \
+	ONLYOFFICE_DOCSERVICE_URL=http://localhost:3080 \
+	mvn spring-boot:run
 
 # ─── App seulement (Maven, pas d'ODS) ──────────────────────
 # Utile pour tester les conversions Java sans ONLYOFFICE

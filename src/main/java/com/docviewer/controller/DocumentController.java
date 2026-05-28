@@ -324,7 +324,7 @@ public class DocumentController {
                 .put("url", "https://www.desjardins.com"));
         customization.put("reviewDisplay", "original");
         customization.put("showPrintButton", true);
-        customization.put("toolbarNoTabs", true);
+        // toolbarNoTabs force index_loader.html, absent de documenteditor/main/ en ODS 9.4+
         customization.put("customer", "Desjardins");
         customization.put("compactToolbar", false);
         customization.put("hidePlacementButtons", true);

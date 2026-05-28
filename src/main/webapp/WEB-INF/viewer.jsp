@@ -25,10 +25,50 @@
   <link href="${pageContext.request.contextPath}/static/css/desjardins.css" rel="stylesheet">
 
   <style>
-    /* Pleine hauteur */
-    html, body { height: 100%; margin: 0; }
-    body { display: flex; flex-direction: column; background: #f0f0f0; }
-    .viewer-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    /* Pleine hauteur — le footer mt-auto ne doit pas voler l'espace du viewer */
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body {
+      display: flex;
+      flex-direction: column;
+      background: #f0f0f0;
+      min-height: 100dvh;
+    }
+    body .footer-dz {
+      margin-top: 0 !important;
+      flex-shrink: 0;
+    }
+    .viewer-wrapper {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    #oo-viewer-root {
+      flex: 1 1 0;
+      min-height: 0;
+      position: relative;
+      width: 100%;
+    }
+    #oo-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #oo-loader {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #oo-loader.hidden {
+      display: none;
+    }
     
     /* Barre d'info du document */
     .doc-info-bar {
