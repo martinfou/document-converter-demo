@@ -11,14 +11,35 @@
     configJson.replace("\\", "\\\\").replace("\"", "\\\"") : "{}";
   String dsUrlClean = dsUrl != null ? dsUrl.replaceAll("/+$", "") : "";
 %>
-<!-- Loader (pleine hauteur du parent flex) -->
-<div id="oo-loader" class="d-flex flex-column align-items-center justify-content-center" style="min-height:300px;flex:1;">
-  <div class="spinner-dz mb-3"></div>
-  <p class="text-muted small">Ouverture du document dans ONLYOFFICE...</p>
+<!-- Un seul enfant flex : loader en overlay, conteneur en pleine hauteur -->
+<div id="oo-viewer-root">
+  <div id="oo-container"></div>
+  <div id="oo-loader" class="d-flex flex-column align-items-center justify-content-center">
+    <div class="spinner-dz mb-3"></div>
+    <p class="text-muted small">Ouverture du document dans ONLYOFFICE...</p>
+  </div>
 </div>
 
-<!-- Conteneur de la visionneuse (pleine hauteur) -->
-<div id="oo-container" style="display:none;width:100%;flex:1;min-height:300px;"></div>
+<style>
+  #oo-viewer-root {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    width: 100%;
+  }
+  #oo-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #oo-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: #f0f0f0;
+  }
+</style>
 
 <!-- ONLYOFFICE Document Editor API -->
 <script type="text/javascript" src="<%= dsUrlClean %>/web-apps/apps/api/documents/api.js"></script>
@@ -37,17 +58,23 @@
 
   if (!config) return;
 
-  // Ajuster la hauteur du conteneur pour remplir tout l'espace
-  config.height = "100%";
-  config.width = "100%";
+  var docEditor = null;
+
+  function viewerHeight() {
+    var root = document.getElementById('oo-viewer-root');
+    return root ? root.clientHeight + 'px' : '100%';
+  }
+
+  config.width = '100%';
 
   // Ajouter le callback d'initialisation
   config.events = {
     'onAppReady': function() {
       var loader = document.getElementById('oo-loader');
-      var container = document.getElementById('oo-container');
       if (loader) loader.style.display = 'none';
-      if (container) container.style.display = 'block';
+      if (docEditor && typeof docEditor.resizeEditor === 'function') {
+        docEditor.resizeEditor();
+      }
     },
     'onDocumentReady': function() {
       console.log('Document prêt dans ONLYOFFICE');
@@ -62,18 +89,32 @@
     }
   };
 
-  try {
-    var docEditor = new DocsAPI.DocEditor('oo-container', config);
-  } catch(e) {
-    var container = document.getElementById('oo-container');
-    if (container) {
-      container.innerHTML = '<div class="alert alert-danger m-3">' +
-        'Erreur lors de l\'initialisation de la visionneuse ONLYOFFICE : ' + e.message +
-        '</div>';
-      container.style.display = 'block';
+  window.addEventListener('resize', function() {
+    if (docEditor && typeof docEditor.resizeEditor === 'function') {
+      docEditor.resizeEditor();
     }
-    var loader = document.getElementById('oo-loader');
-    if (loader) loader.style.display = 'none';
+  });
+
+  function startEditor() {
+    config.height = viewerHeight();
+    try {
+      docEditor = new DocsAPI.DocEditor('oo-container', config);
+    } catch(e) {
+      var container = document.getElementById('oo-container');
+      if (container) {
+        container.innerHTML = '<div class="alert alert-danger m-3">' +
+          'Erreur lors de l\'initialisation de la visionneuse ONLYOFFICE : ' + e.message +
+          '</div>';
+      }
+      var loader = document.getElementById('oo-loader');
+      if (loader) loader.style.display = 'none';
+    }
+  }
+
+  if (document.readyState === 'complete') {
+    startEditor();
+  } else {
+    window.addEventListener('load', startEditor);
   }
 })();
 </script>

@@ -28,7 +28,7 @@
     /* Pleine hauteur */
     html, body { height: 100%; margin: 0; }
     body { display: flex; flex-direction: column; background: #f0f0f0; }
-    .viewer-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .viewer-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     
     /* Barre d'info du document */
     .doc-info-bar {
