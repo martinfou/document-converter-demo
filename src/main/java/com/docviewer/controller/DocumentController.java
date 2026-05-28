@@ -212,25 +212,45 @@ public class DocumentController {
     // ════════════════════════════════════════════
 
     @GetMapping("/api/documents/{docId}/content")
-    @ResponseBody
-    public byte[] serveDocumentContent(@PathVariable String docId) throws IOException {
+    public ResponseEntity<byte[]> serveDocumentContent(@PathVariable String docId) throws IOException {
         Map<String, Object> doc = findDocument(docId);
         if (doc == null) {
             throw new IOException("Document not found: " + docId);
         }
         String path = (String) doc.get("filePath");
         // Try file: first (runtime-generated), then classpath: (baked into WAR)
+        byte[] data;
         try {
             Resource res = resourceLoader.getResource("file:" + path);
             try (InputStream is = res.getInputStream()) {
-                return is.readAllBytes();
+                data = is.readAllBytes();
             }
         } catch (IOException e) {
             Resource res = resourceLoader.getResource("classpath:" + path);
             try (InputStream is = res.getInputStream()) {
-                return is.readAllBytes();
+                data = is.readAllBytes();
             }
         }
+
+        // Determine content type from file extension
+        String ext = "";
+        int dot = path.lastIndexOf('.');
+        if (dot >= 0) ext = path.substring(dot + 1).toLowerCase();
+        MediaType mediaType = switch (ext) {
+            case "pdf" -> MediaType.APPLICATION_PDF;
+            case "jpg", "jpeg" -> MediaType.IMAGE_JPEG;
+            case "png" -> MediaType.IMAGE_PNG;
+            case "gif" -> MediaType.IMAGE_GIF;
+            case "bmp" -> MediaType.parseMediaType("image/bmp");
+            case "tiff", "tif" -> MediaType.parseMediaType("image/tiff");
+            default -> MediaType.APPLICATION_OCTET_STREAM;
+        };
+
+        String filename = path.contains("/") ? path.substring(path.lastIndexOf('/') + 1) : path;
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                .body(data);
     }
 
     @PostMapping("/api/documents/{docId}/key")

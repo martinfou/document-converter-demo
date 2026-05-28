@@ -119,5 +119,16 @@
     "category": "Email",
     "size": "443 B",
     "ooCompatible": false
+  },
+  {
+    "id": "sample-pdf",
+    "name": "PDF - Politique de confidentialité",
+    "description": "Document PDF natif visualisé dans l'iframe intégré",
+    "fileType": "pdf",
+    "filePath": "samples/politique-confidentialite.pdf",
+    "library": "Viewer natif du navigateur",
+    "category": "PDF",
+    "size": "20 KB",
+    "ooCompatible": false
   }
 ]

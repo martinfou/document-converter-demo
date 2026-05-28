@@ -150,9 +150,22 @@
       </div>
       <div class="preview-body">
         <c:choose>
-          <%-- PDF viewer --%>
+          <%-- PDF viewer (iframe works on all browsers incl. Android) --%>
           <c:when test="${fn:toLowerCase(doc.fileType) eq 'pdf'}">
-            <embed src="${pageContext.request.contextPath}/api/documents/${doc.id}/content" type="application/pdf">
+            <div class="d-flex flex-column w-100 h-100">
+              <iframe src="${pageContext.request.contextPath}/api/documents/${doc.id}/content#view=FitH" 
+                      class="flex-grow-1 w-100" style="border:none;border-radius:4px;min-height:200px;"></iframe>
+              <div class="d-flex gap-2 mt-2 justify-content-center flex-wrap">
+                <a href="${pageContext.request.contextPath}/api/documents/${doc.id}/content" 
+                   class="btn btn-sm btn-dz" target="_blank" download>
+                  <i class="bi bi-download me-1"></i>Télécharger le PDF
+                </a>
+                <a href="${pageContext.request.contextPath}/api/documents/${doc.id}/content" 
+                   class="btn btn-sm btn-dz-outline" target="_blank">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Ouvrir dans le navigateur
+                </a>
+              </div>
+            </div>
           </c:when>
 
           <%-- Image viewer --%>
