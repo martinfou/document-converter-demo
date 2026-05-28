@@ -1,0 +1,68 @@
+# ═══════════════════════════════════════════════════════════════
+# Docker Compose — Document Converter Demo + ONLYOFFICE DS
+# ═══════════════════════════════════════════════════════════════
+#
+# Usage:
+#   docker compose up -d              # Démarre les deux services
+#   docker compose up -d app          # Démarre seulement l'app (sans ODS)
+#   docker compose logs -f            # Suivre les logs
+#   docker compose down               # Arrête tout
+#   docker compose down -v            # Arrête + supprime les volumes
+#
+# Accès :
+#   App  : http://localhost:8080
+#   ODS  : http://localhost:3080
+#
+# Notes :
+#   - ODS nécessite ~4 GB de RAM
+#   - JWT désactivé pour le développement local
+#   - Les samples sont intégrés dans le WAR (classpath)
+# ═══════════════════════════════════════════════════════════════
+
+services:
+
+  # ─── ONLYOFFICE Document Server ─────────────────────────────
+  document-server:
+    image: onlyoffice/documentserver:latest
+    container_name: ods-document-server
+    ports:
+      - "3080:80"
+    environment:
+      # JWT désactivé pour le dev local (pas de token à gérer)
+      - JWT_ENABLED=false
+      # Limite mémoire si besoin — ODS peut être gourmand
+      - NODE_ENV=production
+    volumes:
+      - ods-data:/var/www/onlyoffice/Data
+      - ods-log:/var/log/onlyoffice
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ─── Application Spring Boot ────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: document-converter-demo
+    ports:
+      - "8080:8080"
+    environment:
+      # URL de l'app (utilisée par ODS pour les callbacks)
+      - SERVER_URL=http://app:8080
+      # URL d'ODS depuis l'app (réseau Docker interne)
+      - ONLYOFFICE_DS_URL=http://document-server:80
+      # URL d'ODS depuis le navigateur (via port exposé)
+      - ONLYOFFICE_DOCSERVICE_URL=http://localhost:3080
+    depends_on:
+      document-server:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  ods-data:
+  ods-log:
