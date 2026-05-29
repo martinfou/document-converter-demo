@@ -34,5 +34,8 @@ public class WebConfig implements WebMvcConfigurer {
         // Sample documents
         registry.addResourceHandler("/samples/**")
                 .addResourceLocations("file:samples/");
+        // Uploaded documents
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 }

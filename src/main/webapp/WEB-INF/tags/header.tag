@@ -36,6 +36,12 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link <%= active.equals("upload") ? "active" : "" %>" 
+             href="${pageContext.request.contextPath}/upload">
+            <i class="bi bi-cloud-upload me-1"></i>Tester un document
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link <%= active.equals("onlyoffice") ? "active" : "" %>" 
              href="${pageContext.request.contextPath}/onlyoffice">
             <i class="bi bi-eye me-1"></i>Visionneuse ONLYOFFICE

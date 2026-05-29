@@ -1,0 +1,191 @@
+# ═══════════════════════════════════════════════════════
+# ONLYOFFICE Document Server — Déploiement Kubernetes
+# Compatible OpenShift / Tanzu
+# ═══════════════════════════════════════════════════════
+#
+# OpenShift :   oc apply -f k8s/
+#   + SCC anyuid (automatique ci-dessous)
+#
+# Tanzu :       kubectl apply -f k8s/
+#   (aucune config supplémentaire)
+# ═══════════════════════════════════════════════════════
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: document-converter-demo
+
+---
+# ── ServiceAccount ODS ──
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ods-sa
+  namespace: document-converter-demo
+
+---
+# ── SCC : OpenShift uniquement ──
+# ODS doit tourner en root pour PostgreSQL/NGINX au démarrage
+# Kubernetes standard (Tanzu) ignore cette ressource
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: ods-scc
+allowPrivilegedContainer: false
+allowPrivilegeEscalation: true
+allowedCapabilities:
+  - NET_BIND_SERVICE
+  - CHOWN
+  - DAC_OVERRIDE
+  - FOWNER
+  - SETGID
+  - SETUID
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: MustRunAs
+fsGroup:
+  type: RunAsAny
+supplementalGroups:
+  type: RunAsAny
+volumes:
+  - configMap
+  - emptyDir
+  - persistentVolumeClaim
+  - secret
+users:
+  - system:serviceaccount:document-converter-demo:ods-sa
+
+---
+# ── Service ODS ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-ds
+  namespace: document-converter-demo
+  labels:
+    app: onlyoffice-ds
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: https
+  selector:
+    app: onlyoffice-ds
+
+---
+# ── PVC ODS (données persistantes) ──
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ods-data
+  namespace: document-converter-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 40Gi
+
+---
+# ── Déploiement ODS ──
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onlyoffice-ds
+  namespace: document-converter-demo
+  labels:
+    app: onlyoffice-ds
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate   # ODS ne scale pas — 1 seul pod
+  selector:
+    matchLabels:
+      app: onlyoffice-ds
+  template:
+    metadata:
+      labels:
+        app: onlyoffice-ds
+    spec:
+      serviceAccountName: ods-sa
+      containers:
+        - name: documentserver
+          image: onlyoffice/documentserver:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          env:
+            - name: JWT_ENABLED
+              value: "false"
+            - name: AMQP_TYPE
+              value: "rabbitmq"
+          volumeMounts:
+            - name: ods-storage
+              mountPath: /var/www/onlyoffice/Data
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: ods-storage
+          persistentVolumeClaim:
+            claimName: ods-data
+
+---
+# ── Route OpenShift (remplace Ingress) ──
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: onlyoffice-ds
+  namespace: document-converter-demo
+spec:
+  to:
+    kind: Service
+    name: onlyoffice-ds
+  port:
+    targetPort: http
+
+---
+# ── Ingress Tanzu ──
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: onlyoffice-ds-ingress
+  namespace: document-converter-demo
+  annotations:
+    kubernetes.io/ingress.class: contour  # ou nginx selon la config
+spec:
+  rules:
+    - host: ods.document-converter-demo.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: onlyoffice-ds
+                port:
+                  number: 80

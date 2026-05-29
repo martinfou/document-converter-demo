@@ -17,6 +17,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import com.docviewer.service.ConverterService.ConverterEntry;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +34,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +49,7 @@ import java.util.stream.Collectors;
 @Controller
 public class DocumentController {
 
+    private static final Logger log = LoggerFactory.getLogger(DocumentController.class);
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final HttpClient HTTP = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -55,6 +67,9 @@ public class DocumentController {
     @Value("${server.url:http://localhost:8080}")
     private String serverUrl;
 
+    @Value("${app.upload.dir:uploads}")
+    private String uploadDir;
+
     private List<Map<String, Object>> documents;
 
     public DocumentController(ResourceLoader resourceLoader, ConverterService converterService) {
@@ -67,6 +82,12 @@ public class DocumentController {
         loadDocuments();
         if (docserviceUrl.isEmpty()) {
             docserviceUrl = dsBaseUrl;
+        }
+        // Ensure upload directory exists
+        try {
+            Files.createDirectories(Path.of(uploadDir));
+        } catch (IOException e) {
+            log.warn("Cannot create upload directory '{}': {}", uploadDir, e.getMessage());
         }
     }
 
@@ -262,6 +283,108 @@ public class DocumentController {
         }
         String key = UUID.nameUUIDFromBytes(docId.getBytes()).toString();
         return Map.of("key", key);
+    }
+
+    // ════════════════════════════════════════════
+    // Upload + multi-converter comparison
+    // ════════════════════════════════════════════
+
+    /** Page d'upload : formulaire pour tester un fichier avec tous les convertisseurs. */
+    @GetMapping("/upload")
+    public String uploadForm(Model model) {
+        model.addAttribute("pageTitle", "Tester un document");
+        model.addAttribute("supportedExts", String.join(", ",
+                converterService.getSupportedExtensions().stream()
+                        .filter(e -> !e.contains("_"))
+                        .sorted()
+                        .toList()));
+        model.addAttribute("converterCount", converterService.getConverters().size());
+        return "upload";
+    }
+
+    /** POST: upload d'un fichier + conversion avec TOUS les convertisseurs compatibles. */
+    @PostMapping("/upload")
+    public String uploadAndCompare(@RequestParam("file") MultipartFile file,
+                                   @RequestParam(value = "filename", required = false) String customName,
+                                   Model model) {
+        if (file.isEmpty()) {
+            model.addAttribute("error", "Veuillez sélectionner un fichier.");
+            model.addAttribute("pageTitle", "Tester un document");
+            return "upload";
+        }
+
+        String originalName = customName != null && !customName.isBlank() ? customName : file.getOriginalFilename();
+        if (originalName == null || originalName.isBlank()) {
+            originalName = "document";
+        }
+
+        // Save to upload directory with timestamp to avoid collisions
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        String safeName = originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String storedName = timestamp + "-" + safeName;
+        Path uploadPath = Path.of(uploadDir, storedName);
+
+        try {
+            Files.copy(file.getInputStream(), uploadPath, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Upload saved: {} ({} bytes)", uploadPath, file.getSize());
+        } catch (IOException e) {
+            model.addAttribute("error", "Erreur lors de l'enregistrement : " + e.getMessage());
+            model.addAttribute("pageTitle", "Tester un document");
+            return "upload";
+        }
+
+        // Find applicable converters
+        String ext = getExtension(originalName);
+        List<ConverterEntry> applicable = converterService.findConvertersForExtension(ext);
+
+        if (applicable.isEmpty()) {
+            model.addAttribute("error", "Aucun convertisseur disponible pour le format ." + ext
+                    + ". Formats supportés : " + String.join(", ",
+                    converterService.getSupportedExtensions().stream()
+                            .filter(e -> !e.contains("_"))
+                            .sorted()
+                            .toList()));
+            model.addAttribute("pageTitle", "Tester un document");
+            // Clean up the uploaded file
+            try { Files.deleteIfExists(uploadPath); } catch (IOException ignored) {}
+            return "upload";
+        }
+
+        // Run all converters
+        List<ConvertResult> rawResults = converterService.convertAll(uploadPath);
+
+        // Build rich result list with display metadata
+        List<Map<String, Object>> richResults = new ArrayList<>();
+        for (int i = 0; i < applicable.size() && i < rawResults.size(); i++) {
+            ConverterEntry entry = applicable.get(i);
+            ConvertResult result = rawResults.get(i);
+            Map<String, Object> r = new LinkedHashMap<>();
+            r.put("converterName", entry.name());
+            r.put("libraryName", entry.library());
+            r.put("category", entry.category());
+            r.put("sourceExt", entry.sourceExt());
+            r.put("success", result.success());
+            r.put("durationMs", result.durationMs());
+            r.put("outputSizeBytes", result.outputSizeBytes());
+            r.put("outputFileName", result.outputFileName());
+            r.put("outputFile", result.outputFile());
+            r.put("notes", result.notes());
+            richResults.add(r);
+        }
+
+        long totalSuccess = richResults.stream().filter(r -> (Boolean) r.get("success")).count();
+        long totalFail = richResults.size() - totalSuccess;
+
+        model.addAttribute("pageTitle", "Comparaison : " + safeName);
+        model.addAttribute("fileName", originalName);
+        model.addAttribute("fileSize", file.getSize());
+        model.addAttribute("fileType", ext.toUpperCase());
+        model.addAttribute("results", richResults);
+        model.addAttribute("totalConverters", richResults.size());
+        model.addAttribute("totalSuccess", totalSuccess);
+        model.addAttribute("totalFail", totalFail);
+        model.addAttribute("storedFileName", storedName);
+        return "compare";
     }
 
     // ════════════════════════════════════════════

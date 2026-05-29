@@ -145,6 +145,67 @@ public class ConverterService {
         return Collections.unmodifiableList(converters);
     }
 
+    /**
+     * Find all converter entries that can handle a given file extension.
+     * Handles synthetic extensions like "docx_poi" (POI fallback for DOCX).
+     */
+    public List<ConverterEntry> findConvertersForExtension(String ext) {
+        String extLower = ext.toLowerCase();
+        List<ConverterEntry> result = new ArrayList<>();
+
+        // Exact match
+        for (ConverterEntry entry : converters) {
+            if (entry.sourceExt.equals(extLower)) {
+                result.add(entry);
+            }
+        }
+        // Also check for synthetic POI fallback entries (e.g., "docx_poi" for .docx)
+        String poiExt = extLower + "_poi";
+        for (ConverterEntry entry : converters) {
+            if (entry.sourceExt.equals(poiExt)) {
+                result.add(entry);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Run all applicable converters on a file. Results are ordered by
+     * registration priority (first = default/best fidelity).
+     */
+    public List<ConvertResult> convertAll(Path inputPath) {
+        String ext = getExtension(inputPath.getFileName().toString()).toLowerCase();
+        File inputFile = inputPath.toFile();
+        List<ConvertResult> results = new ArrayList<>();
+
+        List<ConverterEntry> applicable = findConvertersForExtension(ext);
+        if (applicable.isEmpty()) {
+            results.add(ConvertResult.failed("demo", inputPath.getFileName().toString(),
+                    "Unsupported format: " + ext + ". Supported: " + getSupportedExtensions()));
+            return results;
+        }
+
+        for (ConverterEntry entry : applicable) {
+            log.info("[MULTI] Converting {} using {} ({})",
+                    inputPath.getFileName(), entry.name, entry.library);
+            long start = System.currentTimeMillis();
+            try {
+                ConvertResult result = entry.converter.convert(inputFile, outputDir.toFile());
+                log.info("[MULTI] {} → success={}, duration={}ms",
+                        entry.name, result.success(), result.durationMs());
+                results.add(result);
+            } catch (Exception e) {
+                log.error("[MULTI] {} crashed: {}", entry.name, e.getMessage());
+                results.add(ConvertResult.failed(
+                        entry.library,
+                        inputPath.getFileName().toString(),
+                        "CRASH: " + e.getClass().getSimpleName() + ": " + e.getMessage()
+                ));
+            }
+        }
+        return results;
+    }
+
     public ConvertResult convert(Path inputPath) {
         String ext = getExtension(inputPath.getFileName().toString()).toLowerCase();
         File inputFile = inputPath.toFile();
